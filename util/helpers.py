@@ -13,10 +13,10 @@ from torch.autograd import Variable
 def weights_init_normal(m):
     # Set initial state of weights
     classname = m.__class__.__name__
-    if 'ConvTrans' == classname:
+    if "ConvTrans" == classname:
         pass
-    elif 'Conv2d' in classname or 'Linear' in classname or 'ConvTrans' in classname:
-        nn.init.normal_(m.weight.data, 0, .02)
+    elif "Conv2d" in classname or "Linear" in classname or "ConvTrans" in classname:
+        nn.init.normal_(m.weight.data, 0, 0.02)
 
 
 def mft(tensor):
@@ -31,9 +31,9 @@ def mft(tensor):
 
 def show_test(params, denorm, tensor_norm, dataloader, style, model, save=False):
     # Show and save
-    ids_a = params['ids']
+    ids_a = params["ids"]
     image_grid_len = len(ids_a)
-    fig, ax = plt.subplots(image_grid_len, 3, figsize=(13, 4.5*image_grid_len))
+    fig, ax = plt.subplots(image_grid_len, 3, figsize=(13, 4.5 * image_grid_len))
     count = 0
     model.eval()
     for idx, real in enumerate(dataloader):
@@ -52,4 +52,27 @@ def show_test(params, denorm, tensor_norm, dataloader, style, model, save=False)
     if save:
         plt.savefig(save)
     plt.show()
+    plt.close(fig)
+    test_single(denorm, tensor_norm, dataloader, style, model, save=True)
+
+
+def test_single(denorm, tensor_norm, dataloader, style, model, save=False):
+    # Show and save
+    fig, ax = plt.subplots(1, 3, figsize=(13, 4.5 * 1))
+    model.eval()
+    real = dataloader.next()
+    real_vgg = Variable(real[0].cuda())
+    real_def = Variable(real[1].cuda())
+    test = tensor_norm(model(real_def))
+    ax[0, 0].cla()
+    ax[0, 0].imshow(denorm.denorm(real_vgg[0]))
+    ax[0, 1].cla()
+    ax[0, 1].imshow(denorm.denorm(test[0]))
+    ax[0, 2].cla()
+    ax[0, 2].imshow(denorm.denorm(style[0]))
+    model.train()
+    if save:
+        plt.savefig(save)
+    else:
+        plt.show()
     plt.close(fig)

@@ -1,0 +1,7 @@
+VOCdevkit*
+VOC*
+.vscode*
+*.jpg
+*.json
+*.pt
+*pycache*
